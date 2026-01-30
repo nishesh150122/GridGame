@@ -1,0 +1,119 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Newtonsoft.Json.Linq;
+using System.IO;
+using System;
+using DG.Tweening;
+
+public class GridGenerator : MonoBehaviour
+{
+    private string fileName = "Player";
+    private string filePath;
+   // LevelRoot levelData;
+    [SerializeField] int tileSize = 1;
+    [SerializeField] GameObject floorPrefab, switchPrefab, goalPrefab;
+    [SerializeField] int level;
+
+    private void Awake()
+    {
+       // levelData = new LevelRoot();
+        filePath = Path.Combine(Application.persistentDataPath,fileName);
+        //ResetGame();
+       //  InitializeSaveFile();
+        LoadGame();
+
+
+
+
+    }
+    void InitializeSaveFile()
+    {
+        if(!File.Exists(filePath))
+        {
+            Debug.Log("Save file not found. Creating new one...");
+            TextAsset playerJson = Resources.Load<TextAsset>("Player");
+            if(playerJson != null)
+            {
+                File.WriteAllText(filePath, playerJson.text);
+            }
+            else
+            {
+              
+            }
+        }
+
+    }
+  
+    void LoadGame()
+    {
+     //   if(File.Exists(filePath))
+        {
+            var filePath = Resources.Load<TextAsset>("Player");
+           // string json = File.ReadAllText(filePath.ToString());
+     
+            JObject parsedData = JObject.Parse(filePath.ToString());
+      
+
+            for (int y = 0; y <(int) parsedData["height"]; y++)
+            {
+                for (int x = 0; x < (int) parsedData["width"]; x++)
+                {
+                    int tile = (int) parsedData["levels"][2][y][x];
+                    
+                    Vector3 position = new Vector3(
+                        x * tileSize,
+                        0,
+                        -y * tileSize
+                    );
+
+                    switch (tile)
+                    {
+                        case 1:
+                           var floor = Instantiate(floorPrefab, position, Quaternion.identity);
+                            floor.transform.DOScale(new Vector3(1, 0.1f, 1), 1)
+                                .SetEase(Ease.InSine);
+                               
+                            break;
+
+                        case 2:
+                          var switchObject =  Instantiate(switchPrefab, position, Quaternion.identity);
+                            switchObject.transform.DOScale(new Vector3(1, 0.1f, 1), 1)
+                               .SetEase(Ease.InSine);
+                            // spawn player
+                            break;
+
+                        case 3:
+                           var goalObject = Instantiate(goalPrefab, position, Quaternion.identity);
+                            goalObject.transform.DOScale(new Vector3(1, 0.1f, 1),1 )
+                               .SetEase(Ease.InSine);
+                            break;
+                    }
+                }
+            }
+        }
+    }
+    
+    void ResetGame()
+    {
+        if(File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+       // InitializeSaveFile();
+        //LoadGame();
+    }
+    
+}
+
+[Serializable]
+public class LevelRoot
+{
+    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
+
+    public int width { get; set; }
+    public int height { get; set; }
+    public List<List<int>> tiles { get; set; }
+
+
+}

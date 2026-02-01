@@ -16,6 +16,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="PerforceDirect.Settings">
+    <option name="ENABLED" value="false" />
+  </component>
   <component name="ProjectId" id="38sh3tyFqOhkC7VIt8glXjmw4cX" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />

@@ -14,6 +14,7 @@ public class GridGenerator : MonoBehaviour
     [SerializeField] int tileSize = 1;
     [SerializeField] GameObject floorPrefab, switchPrefab, goalPrefab;
     [SerializeField] int level;
+    [SerializeField] private GameObject player;
 
     private void Awake()
     {
@@ -47,9 +48,10 @@ public class GridGenerator : MonoBehaviour
   
     void LoadGame()
     {
+        GameObject switchObject = null;
      //   if(File.Exists(filePath))
-        {
-            var filePath = Resources.Load<TextAsset>("Player");
+     {
+         var filePath = Resources.Load<TextAsset>("Player");
            // string json = File.ReadAllText(filePath.ToString());
      
             JObject parsedData = JObject.Parse(filePath.ToString());
@@ -59,7 +61,7 @@ public class GridGenerator : MonoBehaviour
             {
                 for (int x = 0; x < (int) parsedData["width"]; x++)
                 {
-                    int tile = (int) parsedData["levels"][2][y][x];
+                    int tile = (int) parsedData["levels"][level][y][x];
                     
                     Vector3 position = new Vector3(
                         x * tileSize,
@@ -77,10 +79,13 @@ public class GridGenerator : MonoBehaviour
                             break;
 
                         case 2:
-                          var switchObject =  Instantiate(switchPrefab, position, Quaternion.identity);
+                           switchObject =  Instantiate(switchPrefab, position, Quaternion.identity);
                             switchObject.transform.DOScale(new Vector3(1, 0.1f, 1), 1)
                                .SetEase(Ease.InSine);
                             // spawn player
+                            
+                          
+                          
                             break;
 
                         case 3:
@@ -92,6 +97,7 @@ public class GridGenerator : MonoBehaviour
                 }
             }
         }
+        Instantiate(player,switchObject.transform.position + new Vector3(0f,1f,0f),Quaternion.identity);
     }
     
     void ResetGame()

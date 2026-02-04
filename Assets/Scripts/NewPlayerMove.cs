@@ -1,13 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+public enum BlockState
+{
+    Vertical,
+    HorizontalX,
+    HorizontalZ
+}
 public class NewPlayerMove : MonoBehaviour
 {
     [SerializeField] private float rollSpeed = 90f;
-    private bool isMoving;
+    public bool isMoving;
     private BoxCollider boxCollider;
-
+    public BlockState currentState;
+    public float verticalThreshold = 1.5f; // tweak if needed
     private void Start()
     {
         boxCollider = GetComponent<BoxCollider>();
@@ -26,7 +32,28 @@ public class NewPlayerMove : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.W)) StartCoroutine(Roll(Vector3.forward));
         if (Input.GetKeyDown(KeyCode.S)) StartCoroutine(Roll(Vector3.back));
     }
+    void UpdateBlockState()
+    {
+        Vector3 up = transform.up;
 
+        // Dot product tells us alignment with world up
+        float yDot = Mathf.Abs(Vector3.Dot(up, Vector3.up));
+        float xDot = Mathf.Abs(Vector3.Dot(transform.right, Vector3.up));
+        float zDot = Mathf.Abs(Vector3.Dot(transform.forward, Vector3.up));
+
+        if (yDot > 0.9f)
+            currentState = BlockState.Vertical;
+        else if (xDot > zDot)
+            currentState = BlockState.HorizontalX;
+        else
+            currentState = BlockState.HorizontalZ;
+    }
+
+
+    public bool IsVertical()
+    {
+        return currentState == BlockState.Vertical;
+    }
     IEnumerator Roll(Vector3 dir)
     {
         isMoving = true;
@@ -50,6 +77,7 @@ public class NewPlayerMove : MonoBehaviour
         }
 
         if (rb != null) rb.isKinematic = false;
+        UpdateBlockState();
         isMoving = false;
     }
 
@@ -154,4 +182,20 @@ public class NewPlayerMove : MonoBehaviour
                   + Mathf.Abs(Vector3.Dot(t.forward, Vector3.up)) * worldSize.z;
         return h;
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!other.CompareTag("Goal"))
+            return;
+
+        if (IsVertical())
+        {
+            Debug.Log("LEVEL COMPLETE ?? (Vertical on Goal)");
+          //  LevelManager.Instance.OnLevelComplete();
+        }
+        else
+        {
+            Debug.Log("Touched goal but NOT vertical ?");
+        }
+    }
+
 }

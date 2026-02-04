@@ -8,16 +8,21 @@ using DG.Tweening;
 
 public class GridGenerator : MonoBehaviour
 {
+    public static GridGenerator Instance;
     private string fileName = "Player";
     private string filePath;
    // LevelRoot levelData;
     [SerializeField] int tileSize = 1;
-    [SerializeField] GameObject floorPrefab, switchPrefab, goalPrefab;
-    [SerializeField] int level;
+    [SerializeField] GameObject floorPrefab, switchPrefab, goalPrefab,bridgePrefab;
+    public int level;
     [SerializeField] private GameObject player;
+    public int rows,columns;
+   public JObject parsedData;
+    public int tile;
 
     private void Awake()
     {
+        Instance = this;
        // levelData = new LevelRoot();
         filePath = Path.Combine(Application.persistentDataPath,fileName);
         //ResetGame();
@@ -54,14 +59,17 @@ public class GridGenerator : MonoBehaviour
          var filePath = Resources.Load<TextAsset>("Player");
            // string json = File.ReadAllText(filePath.ToString());
      
-            JObject parsedData = JObject.Parse(filePath.ToString());
-      
+            parsedData = JObject.Parse(filePath.ToString());
+             rows = ((JArray)parsedData["levels"][level]).Count;
+             columns = ((JArray)parsedData["levels"][level][0]).Count;
+           // Debug.Log(rows + " " + columns);
 
-            for (int y = 0; y <(int) parsedData["height"]; y++)
+            
+            for (int y = 0; y < rows; y++)
             {
-                for (int x = 0; x < (int) parsedData["width"]; x++)
+                for (int x = 0; x < columns; x++)
                 {
-                    int tile = (int) parsedData["levels"][level][y][x];
+                     tile = (int) parsedData["levels"][level][y][x];
                     
                     Vector3 position = new Vector3(
                         x * tileSize,
@@ -91,6 +99,11 @@ public class GridGenerator : MonoBehaviour
                         case 3:
                            var goalObject = Instantiate(goalPrefab, position, Quaternion.identity);
                             goalObject.transform.DOScale(new Vector3(1, 0.1f, 1),1 )
+                               .SetEase(Ease.InSine);
+                            break;
+                        case 4:
+                            var bridgeObject = Instantiate(bridgePrefab, position, Quaternion.identity);
+                            bridgeObject.transform.DOScale(new Vector3(1, 0.1f, 1), 1)
                                .SetEase(Ease.InSine);
                             break;
                     }

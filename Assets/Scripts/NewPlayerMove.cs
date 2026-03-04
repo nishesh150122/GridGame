@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 public enum BlockState
 {
     Vertical,
     HorizontalX,
     HorizontalZ
 }
+
 public class NewPlayerMove : MonoBehaviour
 {
     [SerializeField] private float rollSpeed = 90f;

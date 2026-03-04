@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 public class LevelGenerator : MonoBehaviour
 {
-    public int width = 5;
-    public int height = 5;
+    public int width = 6;
+    public int height = 6;
 
  public int[,] grid;
 
